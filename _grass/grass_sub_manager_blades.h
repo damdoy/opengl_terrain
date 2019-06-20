@@ -153,7 +153,7 @@ public:
             float variation = sin(cos(pos_y*0.1)+pos_x*0.3)*2; //low freq variations for limit grass in hight
 
             // only draw grass if at a reasonable height (not in water or snow)
-            if(grass_height > water_height+variation && grass_height < 30+variation){
+            if(grass_height > water_height+variation && grass_height < 35+variation){
                   t.translate(pos_x, grass_height, pos_y);
                   t.rotate(0.0, 1.0, 0.0, pos_x*pos_y*5.244);
                   t.scale(0.3, 1.0, 0.3);

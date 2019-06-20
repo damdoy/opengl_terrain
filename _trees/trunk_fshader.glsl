@@ -31,7 +31,12 @@ uniform vec3 sun_col;
 
 float get_shadow_val(float offset_x, float offset_y);
 
+vec3 get_billin(vec2 pos, vec3 min, vec3 max);
+
 mat2 noise_ao;
+
+vec3 bark_high = vec3(0.6, 0.4, 0.2);
+vec3 bark_low = vec3(0.4, 0.25, 0.2);
 
 void main(){
 
@@ -55,8 +60,9 @@ void main(){
    final_intensity.g = sun_intensity.g;
    final_intensity.b = sun_intensity.b;
 
+   //use texture or simple generated bilin function
    // vec3 texture_col = texture(tex, tex_coord).rgb;
-   vec3 texture_col = vec3(0.7, 0.4, 0.2);
+   vec3 texture_col = get_billin(tex_coord*25, bark_low, bark_high);
 
    float time_of_day = dot(-sun_dir, vec3(0, 1, 0));
 
@@ -64,6 +70,39 @@ void main(){
    color_trunk = max(color_trunk, texture_col*(time_of_day/4));
 
    color = vec4( color_trunk*shadow , 1.0);
+}
+
+float rand(ivec2 pt)
+{
+   float x = pt.x*3.13;
+   float y = pt.y*7.17;
+   return fract(x*y/17);
+}
+
+float rand(vec2 pt)
+{
+   return rand(ivec2(pt.x, pt.y));
+}
+
+vec3 get_billin(vec2 pos, vec3 min, vec3 max)
+{
+   vec2 rounded_pos = round(pos);
+
+   float val00 = rand((pos));
+   float val10 = rand((vec2(pos.x, pos.y+1)));
+   float val01 = rand((vec2(pos.x+1, pos.y)));
+   float val11 = rand((vec2(pos.x+1, pos.y+1)));
+
+   vec2 pos_fract = fract(pos);
+
+   //2d linear interpolation
+   float val_x0 = mix(val00, val01, pos_fract.x);
+   float val_x1 = mix(val10, val11, pos_fract.x);
+
+   float final_val = mix(val_x0, val_x1, pos_fract.y);
+
+   return mix(max, min, final_val);
+   // return vec3(final_val);
 }
 
 // float get_shadow_val(float offset_x, float offset_y){

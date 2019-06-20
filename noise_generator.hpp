@@ -18,7 +18,7 @@ public:
    Noise_generator(){
       noise_start_seg = 4;
       noise_levels = 8;
-      noise_start_factor = 0.7f;
+      noise_start_factor = 1.0f;
       noise_factor = 0.5f;
       noise_func_select = NOISE_SELECT_PERLIN;
       rand_seed = 54;

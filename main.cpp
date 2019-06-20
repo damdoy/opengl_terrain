@@ -93,53 +93,34 @@ Framebuffer *framebuffer_refraction;
 Framebuffer *framebuffer_reflection;
 Depth_framebuffer *depth_framebuffer;
 
-//4 sides + 1 bottom
-// Cube cube_base[5];
 Plane plane_test;
-//Grass_element grass_element;
 Grass_manager grass_manager;
 Trees_manager trees_manager;
-// Sphere sphere_decoration[2];
 Sky_sphere sky_sphere;
 Clouds clouds;
-// Cube cube_decoration[2];
-//Terrain terrain;
 Quad_screen quad_screen;
 Transform plane_test_transf;
-// Transform cube_base_transf[5];
-// Transform sphere_decoration_transf[2];
-// Transform cube_decoration_transf[2];
 Transform grass_element_transf;
 Transform water_transf;
 Transform sky_sphere_transf;
 Transform clouds_transf;
 Water water;
-//Terrain terrain;
 QTerrain qterrain;
 Transform terrain_transf;
 
 glm::mat4x4 projection_mat;
-//Texture plane_texture;
 
 Noise_generator noise_gen;
 // Noise_generator_cached *noise_gen;
 
-// Normal_framebuffer normal_framebuffer;
-// AO_framebuffer ao_framebuffer;
-
 std::vector<Drawable*> lst_drawable;
 
-GLfloat light_position[3];
-unsigned int light_mode_selected;
 bool activate_wireframe;
 GLfloat camera_position[3];
 GLfloat camera_direction[3];
-GLfloat spot_dir[3];
 GLuint light_mode = 0;
 bool activate_specular = true;
 bool activate_spot = true;
-
-//GLuint pid_sky;
 
 unsigned int shadow_mapping_effect = 1;
 unsigned int AO_effect = 0;
@@ -159,9 +140,6 @@ const int win_height = 720;
 
 const float water_height = -1.0f/2.0f*TERRAIN_HEIGHT;
 
-// const int win_width = 200;
-// const int win_height = 200;
-
 float time_measured;
 
 unsigned int effect_select;
@@ -177,7 +155,6 @@ int main(){
    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
    glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 2);
    glfwOpenWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-   //glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4);
 
    if( !glfwOpenWindow(win_width, win_height, 0,0,0,0, 32,0, GLFW_WINDOW) ){
       std::cout << "failed to open window" << std::endl;
@@ -220,19 +197,6 @@ int main(){
       }
       if(glfwGetKey('I') == GLFW_PRESS){
          cam->input_handling('I');
-      }
-
-      if(glfwGetKey('V') == GLFW_PRESS){ //moving light
-         light_mode_selected = 0;
-      }
-      if(glfwGetKey('B') == GLFW_PRESS){ //fixed light
-         light_mode_selected = 1;
-      }
-      if(glfwGetKey('N') == GLFW_PRESS){ //moving light
-         light_mode_selected = 2;
-      }
-      if(glfwGetKey('M') == GLFW_PRESS){ //moving light
-         light_mode_selected = 3;
       }
 
       if(glfwGetKey('C') == GLFW_PRESS){ //fixed light
@@ -321,70 +285,21 @@ void init(){
 
    glEnable(GL_MULTISAMPLE);
 
-   //to do with underwater stuff
-   //glEnable(GL_CLIP_DISTANCE0);
-
    glViewport(0,0,win_width,win_height);
    //projection_mat = glm::perspective(3.1415f/2.0f, (float)win_width/(float)win_height, 0.1f, 1000.0f);
 
-   light_position[0] = 0.0; //x
-   light_position[1] = 30.0; //up
-   light_position[2] = 0.0; //z
-
-   light_mode_selected = 3;
    activate_wireframe = false;
 
-   //have the direction of the light toward the (0,0,0)
-   //and normalize it y/length(light_dir)
-   spot_dir[0] = 0.0;
-   spot_dir[1] = -1.0/1.4142;
-   spot_dir[2] = -1.0/1.4142;
-
-   //pid_sky = load_shaders_files("sky_vshader.glsl", "sky_fshader.glsl");
-
-   //cube[0].init();
-   //cube[1].init();
-   // for (size_t i = 0; i < 5; i++) {
-   //    cube_base[i].init();
-   //    cube_base[i].set_color(0.2f*i, 0.2f*i, 0.2f*i);
-   //    lst_drawable.push_back(&cube_base[i]);
-   // }
-   // cube_base[0].init();
-   // cube_base[0].set_color(0.8f, 0.8f, 0.8f);
-   //lst_drawable.push_back(&cube_base[0]);
-
-   // sphere_decoration[0].init(32, 32);
-   // sphere_decoration[1].init(32, 32);
    sky_sphere.init(128, 128, sky_scale);
-   //sky_sphere.set_shader(pid_sky);
-   // cube_decoration[0].init();
-   // cube_decoration[1].init();
-   // lst_drawable.push_back(&sphere_decoration[0]);
-   // lst_drawable.push_back(&sphere_decoration[1]);
-   // lst_drawable.push_back(&cube_decoration[0]);
-   // lst_drawable.push_back(&cube_decoration[1]);
    lst_drawable.push_back(&sky_sphere);
 
    plane_test.init();
 
-   // qtree_run_all_tests();
-
-   //lst_drawable.push_back(&plane_test);
-
    water.init();
    noise_gen.set_noise_function(NOISE_SELECT_2VORONOI_PERLIN);
-   // noise_gen = new Noise_generator_cached();
-   // noise_gen->setup(32u, -1.0f, 1.0f, -1.0f, 1.0f);
-   // noise_gen->set_noise_function(NOISE_SELECT_2VORONOI_PERLIN);
-   //noise_gen.set_noise_level(6);
-   // noise_gen.set_noise_function(NOISE_SELECT_PERLIN);
-   // qterrain.init(noise_gen, FACTOR_DISTANCE_LOD, TERRAIN_INTIAL_GRANULARITY, LOD_MAX_LEVELS, NOISE_GENERATOR_MAX_LEVEL);
    qterrain.init(&noise_gen, FACTOR_DISTANCE_LOD, TERRAIN_INTIAL_GRANULARITY, LOD_MAX_LEVELS, NOISE_GENERATOR_MAX_LEVEL);
 
-   //terrain_transf.scale(2048, 128, 2048);
    terrain_transf.scale(2048, TERRAIN_HEIGHT, 2048);
-   //terrain_transf.scale(64, 8, 64);
-   //terrain_transf.scale(16, 2, 16);
 
    qterrain.set_model_matrix(terrain_transf.get_matrix());
    lst_drawable.push_back(&qterrain);
@@ -405,11 +320,8 @@ void init(){
    plane_test_transf.rotate(0.0f, 1.0, 0.0f, 3.1415);
    plane_test_transf.rotate(1.0f, 0.0f, 0.0f, 3.1415/2.0f);
 
-   //water_transf.scale(1.0f, 1.0f, 1.0f);
    water_transf.translate(0.0f, water_height, 0.0f);
    water_transf.scale(1024.0f, 1.0f, 1024.0f);
-
-   //grass_element_transf.translate(0.0f, 1.0f, 0.0f);
 
    framebuffer_refraction = new Framebuffer_singlesampled();
    framebuffer_refraction->init(win_width, win_height);
@@ -418,7 +330,6 @@ void init(){
    framebuffer_reflection->init(win_width, win_height);
    depth_framebuffer = new Depth_framebuffer();
    depth_framebuffer->init(win_width/2, win_height/2);
-   //framebuffer = new Framebuffer_singlesampled();
    GLuint tex_fb = framebuffer->init(win_width, win_height);
 
    water.set_texture_refraction(framebuffer_refraction->get_texture());
@@ -426,13 +337,10 @@ void init(){
    water.set_texture_refraction_depth(depth_framebuffer->get_texture_id());
 
    quad_screen.init(tex_fb, win_width, win_height);
-   // quad_screen.set_ao_texture(ao_framebuffer.get_texture_id());
 
    cam_fixed.lookAt(1.5f, 1.5f, 1.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-   //cam_fixed.lookAt(0.0f, 3.0f, 0.0001f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
    cam_fixed.set_window_size(win_width, win_height);
 
-   //cam_free.lookAt(3.0f, 3.0f, 3.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
    cam_free.lookAt(6.0f, 6.0f, 12.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
    cam_free.set_window_size(win_width, win_height);
 
@@ -446,13 +354,9 @@ void init(){
    for (size_t i = 0; i < lst_drawable.size(); i++) {
       lst_drawable[i]->set_clip_coord(0, 1, 0, -water_height);
    }
-
-   //printf("%f\n", qterrain.get_height(-7.36, -7.36));
 }
 
 void display(){
-
-   // grass_manager.set_enabled(false);
 
    cam->get_position(camera_position);
    cam->get_direction(camera_direction);
@@ -463,33 +367,14 @@ void display(){
       sky_sphere.advance_sun();
    }
 
-   // static int counter_lod_update = 0;
-   // if(counter_lod_update < 60){
-   //    qterrain.update_lod_camera(camera_position);
-   //    counter_lod_update++;
-   // }
-
-   // static int counter_lod_update = 0;
-   // counter_lod_update++;
-   // if(counter_lod_update > 20){
-   //    qterrain.update_lod_camera(camera_position);
-   //    counter_lod_update = 0;
-   // }
-
    qterrain.update_lod_camera(camera_position);
 
    water.set_effect(water_effect);
 
-   //!!! since we are
-   //depth_framebuffer.set_light_pos(light_position);
    float *sun_dir = sky_sphere.get_sun_direction();
    float sun_dist = 700.0f;
    float sun_pos[3] = {-sun_dist*sun_dir[0], -sun_dist*sun_dir[1], -sun_dist*sun_dir[2]};
-   // float sun_pos[3] = {6, 6, 12};
-   // depth_framebuffer->set_light_pos(light_position);
    depth_framebuffer->set_light_pos(sun_pos);
-   // normal_framebuffer.set_camera(cam);
-   // ao_framebuffer.set_camera(cam);
 
    //set what the depth buffer will see (for shadow map), follow the free cam
    float pos_cam[3];
@@ -497,18 +382,9 @@ void display(){
    //for now, y is set to 0, maybe set it to terrain height?
    depth_framebuffer->center_to(pos_cam[0], 0, pos_cam[2]);
 
-   //to be done before binding any fb (since it loads a fb itself)
-   // normal_framebuffer.draw_fb(&lst_drawable);
-
-   // for (size_t i = 0; i < 5; i++) {
-   //    cube_base[i].set_MVP_matrices(cube_base_transf[i].get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
-   // }
    plane_test.set_MVP_matrices(plane_test_transf.get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
    qterrain.set_MVP_matrices(terrain_transf.get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
-   // for (size_t i = 0; i < 2; i++) {
-   //    // cube_decoration[i].set_MVP_matrices(cube_decoration_transf[i].get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
-   //    sphere_decoration[i].set_MVP_matrices(sphere_decoration_transf[i].get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
-   // }
+
    sky_sphere.set_MVP_matrices(sky_sphere_transf.get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
 
    water.set_MVP_matrices(water_transf.get_matrix(), cam->getMatrix(), cam->get_perspective_mat());
@@ -517,7 +393,6 @@ void display(){
 
    for (size_t i = 0; i < lst_drawable.size(); i++) {
 
-      lst_drawable[i]->set_light_pos(light_position);
       lst_drawable[i]->set_camera_pos(camera_position);
 
       lst_drawable[i]->set_camera_direction(camera_direction);
@@ -591,21 +466,9 @@ void display(){
    glClear(GL_COLOR_BUFFER_BIT);
    glClear(GL_DEPTH_BUFFER_BIT);
 
-   //plane_test.set_MVP_matrices(water_transf.get_matrix(), cam->getMatrix(), projection_mat);
-
-   // grass_manager.set_camera_pos(camera_position);
-   // grass_manager.set_light_pos(light_position);
-   // grass_manager.set_view_matrix(cam->getMatrix());
-   // grass_manager.set_projection_matrix(projection_mat);
-   //grass_manager.draw();
-
-   //qterrain.draw(cam->getMatrix(), projection_mat, light_position, camera_position, true, false, activate_wireframe);
-
    for (size_t i = 0; i < lst_drawable.size(); i++) {
       lst_drawable[i]->draw();
    }
-
-   //water.draw();
 
    framebuffer->unbind();
 
@@ -613,50 +476,7 @@ void display(){
    glClear(GL_DEPTH_BUFFER_BIT);
    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-   // ao_framebuffer.set_AO_effect(AO_effect);
-   // ao_framebuffer.set_texture_depth_buffer(depth_framebuffer->get_texture_id());
-   // ao_framebuffer.set_texture_normal_buffer(normal_framebuffer.get_texture_id());
-   //
-   // ao_framebuffer.draw_fb();
-
-   //TODO TEMP display depth buffer
-   // quad_screen.load_texture(depth_framebuffer->get_texture_id());
-   //quad_screen.load_texture(normal_framebuffer.get_texture_id());
-   //quad_screen.load_texture(ao_framebuffer.get_texture_id());
-
    quad_screen.draw(effect_select);
-
-   //printf("light position: %f, %f, %f\n", light_position[0], light_position[1], light_position[2]);
-
-   // if(time_measured != 0.0f){
-   //    float diff = glfwGetTime()-time_measured;
-   //    cube_transf.rotate(0.0f, 1.0f, 0.0f, diff);
-   // }
-   //
-   // time_measured = glfwGetTime();
-
-   //move light up and down with time make the coord y of light go from 0 to 10
-   if(light_mode_selected == 0){
-      //light_position[0] = 10.0 - fabs(10.0-fmod(2*glfwGetTime(), 20.0));
-      light_position[0] = 0.0;
-      light_position[1] = 32.0*cos(glfwGetTime()/2);
-      light_position[2] = 32.0*sin(glfwGetTime()/2);
-   }
-   else if(light_mode_selected == 1){
-      light_position[0] = 16.0*cos(glfwGetTime()/2);
-      light_position[1] = 32;
-      light_position[2] = 16.0*sin(glfwGetTime()/2);
-   }
-   else if(light_mode_selected == 2){
-      light_position[0] = 35;
-      light_position[1] = 35;
-      light_position[2] = -35;
-   }
-   else if(light_mode_selected == 3){
-      light_position[0] = 35;
-      light_position[1] = -35;
-      light_position[2] = 35;
-   }
 }
 
 void cleanup(){

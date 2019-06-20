@@ -146,8 +146,6 @@ public:
       glEnable(GL_CULL_FACE);
 
       glUseProgram(0);
-
-
    }
 
 protected:
@@ -202,7 +200,8 @@ protected:
 
             int dist_to_cam = abs(i_cam-i)+abs(j_cam-j);
 
-            if(dist_to_cam <= GRASS_DRAW_DISTANCE){
+            // if(dist_to_cam <= GRASS_DRAW_DISTANCE && i > sub_mgr_size && j > sub_mgr_size){
+            if(dist_to_cam <= GRASS_DRAW_DISTANCE ){
                sub_managers[curr_pos].set_enabled(true);
             }
             else{
