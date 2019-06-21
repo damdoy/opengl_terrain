@@ -198,10 +198,28 @@ protected:
 
             int curr_pos = i*(sub_mgr_size*2)+j;
 
+            //limit draw by distance
             int dist_to_cam = abs(i_cam-i)+abs(j_cam-j);
 
-            // if(dist_to_cam <= GRASS_DRAW_DISTANCE && i > sub_mgr_size && j > sub_mgr_size){
-            if(dist_to_cam <= GRASS_DRAW_DISTANCE ){
+            float point_dir_start_x = sub_managers[curr_pos].get_start_x()-this->camera_position[0];
+            float point_dir_end_x = sub_managers[curr_pos].get_end_x()-this->camera_position[0];
+            float point_dir_start_y = sub_managers[curr_pos].get_start_y()-this->camera_position[2];
+            float point_dir_end_y = sub_managers[curr_pos].get_end_y()-this->camera_position[2];
+
+            float cam_dir_x = this->camera_direction[0];
+            float cam_dir_y = this->camera_direction[2];
+
+            //calculate dot products with cam direction for all 4 corners of sub grass
+            float dot_top_left = point_dir_start_x*cam_dir_x+point_dir_start_y*cam_dir_y;
+            float dot_top_right = point_dir_end_x*cam_dir_x+point_dir_start_y*cam_dir_y;
+            float dot_bot_left = point_dir_start_x*cam_dir_x+point_dir_end_y*cam_dir_y;
+            float dot_bot_right = point_dir_end_x*cam_dir_x+point_dir_end_y*cam_dir_y;
+
+            //in view = in the front of the camera (this is really permissive but still removes 50% sub terrains)
+            bool is_sub_grass_in_view = (dot_top_left > 0 || dot_top_right > 0 || dot_bot_left > 0 || dot_bot_right > 0);
+
+            // if(dist_to_cam <= GRASS_DRAW_DISTANCE && i < sub_mgr_size && j < sub_mgr_size){
+            if(dist_to_cam <= GRASS_DRAW_DISTANCE && is_sub_grass_in_view){
                sub_managers[curr_pos].set_enabled(true);
             }
             else{

@@ -121,7 +121,9 @@ public:
    //draw all sub terrains
    void sub_draw(Quad_tree_node* node, glm::mat4x4 model, glm::mat4x4 view, glm::mat4x4 projection, GLfloat light_position[3], GLfloat camera_position[3], bool activate_colour, bool activate_heightmap, bool activate_wireframe){
       if(node->is_tail){
-         node->terrain->draw(model, view, projection, light_position, camera_position, activate_colour, activate_heightmap, activate_wireframe);
+         if(node->enabled){
+            node->terrain->draw(model, view, projection, light_position, camera_position, activate_colour, activate_heightmap, activate_wireframe);
+         }
       }
       else{
          for (unsigned int i = 0; i <= 3; i++){
@@ -214,7 +216,7 @@ public:
 
    void set_factor_distance_lod(float factor_distance){
       assert(factor_distance > 0.0f);
-      this->factor_distance_lod = factor_distance;
+      this->factor_distance_lod = factor_distance*factor_distance;
    }
 
 protected:
@@ -252,6 +254,8 @@ protected:
 
    //update the camera for all terrains in the qtree
    void update_lod_camera_recurs(Quad_tree_node *qnode, GLfloat camera_pos[3]){
+
+      ///// calculate if we should break the qnode based on distance
       float centre[3];
       centre[0] = (qnode->start_x+qnode->end_x)/2.0;//x
       centre[1] = 0.0f;
@@ -260,17 +264,24 @@ protected:
       glm::vec4 centre_v4 = glm::vec4(centre[0], centre[1], centre[2], 1.0);//model_transf.get_matrix();
       centre_v4 = model_matrix*centre_v4;
 
-      float squared_distances[0];
+      float squared_distances[3];
       squared_distances[0] = (centre_v4[0]-camera_pos[0])*(centre_v4[0]-camera_pos[0]);
       squared_distances[1] = (centre_v4[1]-camera_pos[1])*(centre_v4[1]-camera_pos[1]);
       squared_distances[2] = (centre_v4[2]-camera_pos[2])*(centre_v4[2]-camera_pos[2]);
 
-      float distance = sqrt(squared_distances[0]+squared_distances[2]);
-      distance *= factor_distance_lod;
-      float resize_mat = sqrt(model_matrix[0][0]*model_matrix[2][2])*3;
+      //////old implementation using sqrt which can be costly on cpu
+      // float distance = sqrt(squared_distances[0]+squared_distances[2]);
+      // distance *= factor_distance_lod;
+      // float resize_mat = sqrt(model_matrix[0][0]*model_matrix[2][2])*3;
+      float distance = squared_distances[0]+squared_distances[2];
+      distance *= factor_distance_lod; //pow2 when factor distance is set
+      float resize_mat = (model_matrix[0][0]*model_matrix[2][2])*9;
+
+      float width = (qnode->end_x-qnode->start_x);
+      width *= width;
 
       if (!qnode->is_tail){ //not tail, check if need to merge, otherwise pass to children
-         if(distance > (qnode->end_x-qnode->start_x)*resize_mat){
+         if(distance > width*resize_mat){
             qnode->merge_qtree();
          }
          else{
@@ -280,10 +291,42 @@ protected:
          }
       }
       else{ //is tail, check if need to break
-         if(distance < (qnode->end_x-qnode->start_x)*resize_mat){
+         if(distance < width*resize_mat){
             qnode->break_qtree();
          }
       }
+
+      ///// deactivate terrains behind the camera
+      //need to scale terrain position with the model matrix, to do calculation with camera pos
+      glm::vec4 start_pt(qnode->start_x, 0, qnode->start_y, 0);
+      start_pt = model_matrix*start_pt;
+      glm::vec4 end_pt(qnode->end_x, 0, qnode->end_y, 0);
+      end_pt = model_matrix*end_pt;
+
+      float point_dir_start_x = start_pt[0]-camera_pos[0];
+      float point_dir_end_x = end_pt[0]-camera_pos[0];
+      float point_dir_start_y = start_pt[2]-camera_pos[2];
+      float point_dir_end_y = end_pt[2]-camera_pos[2];
+
+      float cam_dir_x = this->camera_direction[0];
+      float cam_dir_y = this->camera_direction[2];
+
+      //calculate dot products with cam direction for all 4 corners of sub grass
+      float dot_top_left = point_dir_start_x*cam_dir_x+point_dir_start_y*cam_dir_y;
+      float dot_top_right = point_dir_end_x*cam_dir_x+point_dir_start_y*cam_dir_y;
+      float dot_bot_left = point_dir_start_x*cam_dir_x+point_dir_end_y*cam_dir_y;
+      float dot_bot_right = point_dir_end_x*cam_dir_x+point_dir_end_y*cam_dir_y;
+
+      //in view = in the front of the camera (this is really permissive but still removes 50% sub terrains)
+      bool is_sub_terrain_in_view = (dot_top_left > 0 || dot_top_right > 0 || dot_bot_left > 0 || dot_bot_right > 0);
+
+      if(is_sub_terrain_in_view){
+         qnode->enabled = true;
+      }
+      else{
+         qnode->enabled = false;
+      }
+
    }
 
    //to get height of a specific sub element.

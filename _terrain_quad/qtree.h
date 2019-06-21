@@ -38,6 +38,7 @@ public:
       this->subdivisions = subdivisions;
       this->max_levels = max_levels;
       this->noise_generator_max_level = noise_generator_max_level;
+      this->enabled = true;
    }
 
    void set_as_root(Noise_generator noise_gen, GLuint _pid){
@@ -654,6 +655,7 @@ public:
    float end_x;
    float end_y;
    unsigned int level;
+   bool enabled;
    Terrain *terrain;
    Quad_tree_node *children[4];
    Quad_tree_node *parent;
