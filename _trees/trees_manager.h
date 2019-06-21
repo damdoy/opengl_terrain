@@ -48,7 +48,7 @@ public:
       _pid_trunk = load_shaders_files("trunk_vshader.glsl", "trunk_fshader.glsl");
       _pid_indiv_leaves = load_shaders_files("leaves_individual_vshader.glsl", "leaves_individual_fshader.glsl");
 
-      sub_mgr_size = 5;
+      sub_mgr_size = 7;
 
       //init the trees for all the sub managers
       sub_managers.resize(sub_mgr_size*2+1);

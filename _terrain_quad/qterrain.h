@@ -318,7 +318,8 @@ protected:
       float dot_bot_right = point_dir_end_x*cam_dir_x+point_dir_end_y*cam_dir_y;
 
       //in view = in the front of the camera (this is really permissive but still removes 50% sub terrains)
-      bool is_sub_terrain_in_view = (dot_top_left > 0 || dot_top_right > 0 || dot_bot_left > 0 || dot_bot_right > 0);
+      //make comparison with dot product a bit higher, otherwise looking right down will make half of the terrain disappear
+      bool is_sub_terrain_in_view = (dot_top_left > -1.0 || dot_top_right > -1.0 || dot_bot_left > -1.0 || dot_bot_right > -1.0);
 
       if(is_sub_terrain_in_view){
          qnode->enabled = true;

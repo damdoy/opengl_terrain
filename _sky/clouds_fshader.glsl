@@ -37,7 +37,7 @@ void main(){
    vec4 color_cloud = vec4(vec3(1.0), 0.0);
 
    // color_cloud
-   float amount_clouds = texture(tex_clouds, uv_frag+clouds_pos/500.0).r;
+   float amount_clouds = texture(tex_clouds, uv_frag+clouds_pos/1000.0).r;
    amount_clouds = amount_clouds*0.5+0.5; //make it [0,1]
    amount_clouds += (clouds_level-0.5)*2;
 

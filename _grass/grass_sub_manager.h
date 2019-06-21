@@ -30,7 +30,7 @@ public:
 
       //add patches of grasses with a noise function
       noise_gen_grass_prob.set_noise_function(NOISE_SELECT_PERLIN);
-      noise_gen_grass_prob.set_noise_level(3);
+      noise_gen_grass_prob.set_noise_level(1);
 
       {
          glGenVertexArrays(1, &_vao_grass);

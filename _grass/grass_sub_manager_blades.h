@@ -26,7 +26,7 @@ public:
 
       //noise function, to be used to create patches of grass, but doesn't look that good
       noise_gen_grass_prob.set_noise_function(NOISE_SELECT_PERLIN);
-      noise_gen_grass_prob.set_noise_level(3);
+      noise_gen_grass_prob.set_noise_level(1);
 
       {
          unsigned int err = 0;

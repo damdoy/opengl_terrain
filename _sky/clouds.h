@@ -24,7 +24,7 @@ public:
       clouds_pos[1] = 0.0f;
 
       transf_sky.rotate(1.0f, 0.0f, 0.0f, 3.1415f);
-      transf_sky.scale(1500.0f, 1.0f, 1500.0f);
+      transf_sky.scale(3000.0f, 1.0f, 3000.0f);
       transf_sky.translate(0.0f, -150.0f, 0.0f);
 
       //2d perlin noise for clouds

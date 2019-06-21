@@ -218,25 +218,16 @@ int main(){
       if(glfwGetKey('Z') == GLFW_PRESS){
          advance_sky = false;
       }
-      // if(glfwGetKey('U') == GLFW_PRESS){
-      //    water_effect = 4;
-      // }
-      // if(glfwGetKey('F') == GLFW_PRESS){
-      //    water_effect = 5;
-      // }
-      // if(glfwGetKey('G') == GLFW_PRESS){
-      //    water_effect = 6;
-      // }
 
       if(glfwGetKey('O') == GLFW_PRESS){
          if(clouds_amount > 0.0f){
-            clouds_amount -= 0.002;
+            clouds_amount -= 0.006;
          }
       }
 
       if(glfwGetKey('P') == GLFW_PRESS){
          if(clouds_amount < 1.0f){
-            clouds_amount += 0.002;
+            clouds_amount += 0.006;
          }
       }
 

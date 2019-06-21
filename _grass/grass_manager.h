@@ -42,7 +42,7 @@ public:
 
       this->terrain = terrain;
 
-      sub_mgr_size = 3;
+      sub_mgr_size = 5;
 
       //init les submanagers
       for (int i = -sub_mgr_size; i < (int)sub_mgr_size; i++) {
